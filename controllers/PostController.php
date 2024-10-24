@@ -2,8 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\Comment;
+use app\models\CommentSearch;
 use app\models\Post;
 use app\models\PostSearch;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -55,17 +58,19 @@ class PostController extends Controller
      */
     public function actionView($id)
     {
-        // Carregar o post
-        $model = $this->findModel($id);
-
-        // Carregar os comentários associados ao post
-        $comments = $model->comments;
+        $searchModel = new CommentSearch();
+        $post = Post::findOne($id);
+        $query = $post->getComments();
+        $dataProvider = new ActiveDataProvider([
+            'query'=> $query,
+        ]);
 
         // Renderizar a view passando o post e seus respectivos comentários
         return $this->render('view', [
-            'model' => $model,
-            'comments' => $comments,
-
+            'model' => $post,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'commentModel' => new Comment(),
         ]);
     }
 
